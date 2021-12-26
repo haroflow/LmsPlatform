@@ -2,7 +2,7 @@
 
 An example of a LMS (Learning Management System) platform, developed with .Net Core and Angular.
 
-Offers a basic and simple interface, for both admins, teachers and students.
+Offers a basic and simple interface for admins, teachers and students.
 
 TODO screenshots
 
