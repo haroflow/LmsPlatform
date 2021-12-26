@@ -1,0 +1,18 @@
+<div class="card" *ngIf="course">
+	<img class="card-img-top" src="{{course.miniatureImage}}" alt="{{course.name}}"
+	style="width: 250px; height: 150px">
+	
+	<div class="card-body">
+		<h5 class="card-title">{{course.name}}</h5>
+		<p class="card-text">{{course.description}}</p>
+
+		<a *ngIf="course.userEnrolled"
+			routerLink="/courses/{{course.slug}}/study"
+			class="btn btn-success mt-auto mr-1">Go to course</a>
+		<a *ngIf="!course.userEnrolled"
+			(click)="enroll(course)"
+			class="btn btn-primary mt-auto mr-1">Enroll</a>
+
+		<a routerLink="/courses/{{course.slug}}" class="btn btn-secondary">Details</a>
+	</div>
+</div>

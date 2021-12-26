@@ -1,0 +1,57 @@
+<div class="row justify-content-center mt-5 mb-3">
+	<div class="col-4">
+		<h3>Register</h3>
+	</div>
+</div>
+
+<div class="row justify-content-center">
+	<form class="col-4" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+		<div>
+			<label for="username" class="form-label">User name</label>
+			<input type="text" autofocus formControlName="username" id="username" class="form-control"
+				autocomplete="off">
+
+			<div *ngIf="username?.invalid && (username?.dirty || username?.touched)">
+				<div class="text-danger" *ngIf="username?.errors?.['required']">
+					User name is required.
+				</div>
+				<div class="text-danger" *ngIf="username?.errors?.['minlength']">
+					User name needs at least 5 characters.
+				</div>
+				<div class="text-danger" *ngIf="username?.errors?.['alreadyRegistered']">
+					User name is already in use.
+				</div>
+			</div>
+		</div>
+
+		<div class="mt-1">
+			<label for="password" class="form-label">Password</label>
+			<input type="password" formControlName="password" id="password" class="form-control">
+
+			<div *ngIf="password?.invalid && (password?.dirty || password?.touched)">
+				<div class="text-danger" *ngIf="password?.errors?.['required']">
+					Password is required.
+				</div>
+			</div>
+		</div>
+
+		<div class="mt-1">
+			<label for="confirm-password" class="form-label">Confirm Password</label>
+			<input type="password" formControlName="confirmPassword" id="confirm-password" class="form-control">
+
+			<div *ngIf="confirmPassword?.invalid && (confirmPassword?.dirty || confirmPassword?.touched)">
+				<div class="text-danger" *ngIf="confirmPassword?.errors?.['required']">
+					Password confirmation is required.
+				</div>
+			</div>
+		</div>
+
+		<div class="text-danger" *ngIf="password?.value && confirmPassword?.value && registerForm.errors?.['passwordConfirmationWrong']">
+			The passwords don't match.
+		</div>
+
+		<button class="btn btn-primary mt-3" type="submit" [disabled]="!registerForm.valid">Register</button>
+
+		<div *ngIf="error" class="alert alert-danger mt-3">{{error}}</div>
+	</form>
+</div>

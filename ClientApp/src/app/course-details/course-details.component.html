@@ -1,0 +1,62 @@
+<div *ngIf="error && error.status === 404">
+	<h3>Course not found</h3>
+</div>
+<div *ngIf="error && error.status !== 404">
+	<h3>Error loading course details</h3>
+</div>
+
+<div *ngIf="course">
+	<div class="row mb-3">
+		<div class="col">
+			<img src="{{course.bannerImage}}" alt="{{course.name}} course image" style="height: 300px">
+		</div>
+	</div>
+
+	<div class="row mb-3">
+		<div class="col">
+			<h3>{{course.name}}</h3>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col">
+			<p>{{course.description}}</p>
+		</div>
+	</div>
+
+	<div class="row mb-5">
+		<div class="col">
+			<button *ngIf="course.userEnrolled" class="btn btn-success" (click)="goToCourse(course)">
+				Go to course
+			</button>
+			<button *ngIf="!course.userEnrolled" class="btn btn-primary" (click)="enroll(course)">
+				Enroll and go to course
+			</button>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col">
+			<h4>Modules</h4>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col">
+			<p>This course has <strong>{{totalLessons(course)}}</strong> lessons, divided into <strong>{{course.modules.length}}</strong> modules:</p>
+
+			<ol>
+				<li *ngFor="let module of course.modules">
+					{{module.title}}
+					<ol>
+						<li *ngFor="let lesson of module.lessons">
+							{{lesson.title}}
+						</li>
+					</ol>
+				</li>
+			</ol>
+		</div>
+	</div>
+	
+
+</div>

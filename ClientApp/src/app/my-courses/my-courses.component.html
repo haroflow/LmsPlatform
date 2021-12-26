@@ -1,0 +1,14 @@
+<div *ngIf="errorMessage" class="alert alert-danger">{{errorMessage}}</div>
+
+<div *ngIf="courses === null || courses.length == 0">
+	<h3>You are not enrolled in any course yet...</h3>
+	<a class="btn btn-primary mt-3" routerLink="/courses">Go to course list</a>
+</div>
+
+<div *ngIf="courses !== null && courses.length > 0">
+	<div class="row">
+		<div class="col-4 mb-3 d-flex align-items-stretch" *ngFor="let course of courses">
+			<app-course-card class="d-flex align-items-stretch" [course]="course"></app-course-card>
+		</div>
+	</div>
+</div>

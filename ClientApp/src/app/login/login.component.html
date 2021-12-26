@@ -1,0 +1,29 @@
+<div class="row justify-content-center mt-5 mb-3">
+	<div class="col-4">
+		<h3>Log in</h3>
+	</div>
+</div>
+
+<div class="row justify-content-center" *ngIf="invalidLogin">
+	<div class="col-4">
+		<div class="alert alert-danger">
+			Invalid username or password
+		</div>
+	</div>
+</div>
+
+<div class="row justify-content-center">
+	<form class="col-4" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+		<div>
+			<label for="username" class="form-label">User name</label>
+			<input autofocus type="text" formControlName="username" id="username" class="form-control">
+		</div>
+
+		<div class="mb-3">
+			<label for="password" class="form-label">Password</label>
+			<input type="password" formControlName="password" id="password" class="form-control">
+		</div>
+
+		<button class="btn btn-primary" type="submit">Log in</button>
+	</form>
+</div>

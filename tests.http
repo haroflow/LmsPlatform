@@ -1,0 +1,80 @@
+# Use the REST Client vscode extension
+
+@url = https://localhost:7030
+@token = Authorization: Bearer {{login.response.body.token}}
+
+
+
+### Seed database
+GET {{url}}/api/db/seed
+
+
+
+### Login as student
+# @name login
+POST {{url}}/api/auth
+Content-Type: application/json
+
+{
+	"username": "student",
+	"password": "123"
+}
+
+### Login as teacher
+# @name login
+POST {{url}}/api/auth
+Content-Type: application/json
+
+{
+	"username": "teacher",
+	"password": "123"
+}
+
+### Login as administrator
+# @name login
+POST {{url}}/api/auth
+Content-Type: application/json
+
+{
+	"username": "administrator",
+	"password": "123"
+}
+
+
+
+### Check username availability
+GET {{url}}/api/users/check-username-availability?username=student
+
+### Get all courses
+GET {{url}}/api/courses
+{{token}}
+
+### Get courses by slug
+GET {{url}}/api/courses/angular-15
+{{token}}
+
+### Get My Courses
+GET {{url}}/api/courses/my-courses
+{{token}}
+
+### Get completed lessons
+GET {{url}}/api/courses/completed
+{{token}}
+
+
+
+### Get users
+GET {{url}}/api/users
+
+### Register new Student
+POST {{url}}/api/users
+Content-Type: application/json
+
+{
+	"username": "jimothy2",
+	"password": "jimhalpert123"
+}
+
+
+###
+GET {{url}}/api/db/teste

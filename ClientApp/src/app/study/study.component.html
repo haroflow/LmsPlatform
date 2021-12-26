@@ -1,0 +1,40 @@
+<div class="row" *ngIf="!course">
+	<div class="col">
+		<h3>Not found</h3>
+	</div>
+</div>
+
+<div class="row" *ngIf="course">
+	<div class="col-4">
+		<h6 class="text-secondary mb-3">{{course.name}}</h6>
+		<hr>
+
+		<div class="mb-3" *ngFor="let module of course.modules">
+			<h6>{{module.title}}</h6>
+
+			<div class="list-group">
+				<a class="list-group-item" *ngFor="let lesson of module.lessons"
+					routerLink="/courses/{{course.slug}}/{{module.slug}}/{{lesson.slug}}"
+					[routerLinkActive]="['list-group-item-primary']">
+
+					<i i-bs name="check-lg" class="text-success" *ngIf="lesson.completed"></i>
+					{{lesson.title}}
+				</a>
+			</div>
+		</div>
+	</div>
+
+	<div class="col" *ngIf="lesson">
+		<h3 class="mb-3">{{lesson.title}}</h3>
+
+		<div *ngIf="lesson.videoURL">
+			<iframe [src]="sanitizeURL(lesson.videoURL)" class="lesson-video" allowfullscreen></iframe>
+		</div>
+
+		<div *ngIf="lesson.text">
+			{{lesson.text}}
+		</div>
+
+		<button class="btn btn-primary float-right mt-5" (click)="completeAndGoToNextLesson()">Mark as finished and go to next lesson</button>
+	</div>
+</div>
