@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace LmsPlatform.Models
 {
@@ -7,8 +6,8 @@ namespace LmsPlatform.Models
     {
         [Key]
         public long Id { get; set; }
-        public string Slug { get; set; } = "";
         public string Title { get; set; } = "";
+        public string Slug { get; set; } = "";
         public Module? Module { get; set; }
 
         // VideoLesson

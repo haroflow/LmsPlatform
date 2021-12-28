@@ -21,23 +21,26 @@ namespace LmsPlatform.Repositories
 
 		public async Task<Course?> GetCourseBySlugAsync(string slug)
 		{
-			return await _context.Courses
-                .Include(c => c.Modules)
-                .ThenInclude(m => m.Lessons)
+			var course = await _context.Courses
+				.Include(c => c.Modules)
+				.ThenInclude(m => m.Lessons)
+				.AsSplitQuery()
                 .FirstOrDefaultAsync(c => c.Slug == slug);
+
+			return course;
 		}
 
-		public async Task<bool> EnrollStudentInCourseAsync(string? username, string courseSlug)
+		public async Task<bool> EnrollStudentInCourseAsync(string username, string courseSlug)
 		{
-			var u = await _context.Users.FindAsync(username);
-            if (u == null)
+			var user = await _context.Users.FindAsync(username);
+            if (user == null)
                 return false;
 
-            var c = await _context.Courses.FirstOrDefaultAsync(c => c.Slug == courseSlug);
-            if (c == null)
+            var course = await _context.Courses.FirstOrDefaultAsync(c => c.Slug == courseSlug);
+            if (course == null)
                 return false;
 
-            u.MyCourses.Add(c);
+			user.Courses.Add(course);
             await _context.SaveChangesAsync();
 
 			return true;
@@ -47,36 +50,30 @@ namespace LmsPlatform.Repositories
 		{
 			return await _context.Lessons.FirstOrDefaultAsync(l =>
                 l.Slug == lessonSlug &&
-                l.Module!.Slug == moduleSlug &&
-                l.Module!.Course!.Slug == courseSlug);
+                l.Module != null &&
+				l.Module.Slug == moduleSlug &&
+				l.Module.Course != null &&
+                l.Module.Course.Slug == courseSlug);
 		}
-
-		// public async Task<Course?> GetUserMyCoursesBySlug(string? username, string courseSlug)
-		// {
-		// 	var course = await _context.Courses
-        //         .Include(c => c.Modules)
-        //         .ThenInclude(m => m.Lessons)
-        //         .FirstOrDefaultAsync(c => c.Slug == courseSlug);
-                
-		// 	return course;
-		// }
 
 		public async Task<List<LessonCompleted>?> GetUserCourseProgressAsync(string? username, long courseId)
 		{
-			var progress = await _context.LessonsCompleted
+			var progress = await _context.LessonCompleted
 				.Where(t => t.Username == username && t.CourseId == courseId)
 				.ToListAsync();
 
 			return progress;
 		}
 
-		public async Task<bool> SetLessonAsCompletedAsync(string? username, long courseId, long lessonId)
+		public async Task<bool> SetLessonAsCompletedAsync(string username, long courseId, long lessonId)
 		{
-			var lc = new LessonCompleted();
-            lc.Username = username;
-            lc.LessonId = lessonId;
-            lc.CourseId = courseId;
-            _context.LessonsCompleted.Add(lc);
+			var lc = new LessonCompleted
+			{
+				Username = username,
+				LessonId = lessonId,
+				CourseId = courseId
+			};
+            _context.LessonCompleted.Add(lc);
             var changed = await _context.SaveChangesAsync();
 
 			return changed > 0;
@@ -90,13 +87,18 @@ namespace LmsPlatform.Repositories
 				.FirstOrDefaultAsync(l => l.Id == lessonId);
 		}
 
-		public async Task<bool> IsUserEnrolledInCourseAsync(string? username, long id)
+		public async Task<bool> IsUserEnrolledInCourseAsync(string username, long courseId)
 		{
-			var user = await _context.Users.Include(u => u.MyCourses).FirstOrDefaultAsync(u => u.Username == username);
+			var user = await _context.Users
+				.Include(u => u.Courses)
+				.AsNoTracking()
+				.FirstOrDefaultAsync(u => u.Username == username);
 			if (user == null)
 				return false;
 			
-			var isEnrolled = user.MyCourses.Any(c => c.Id == id);
+			var isEnrolled = user.Courses
+				.Any(c => c.Id == courseId);
+
 			return isEnrolled;
 		}
 	}

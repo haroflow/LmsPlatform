@@ -21,9 +21,8 @@ namespace LmsPlatform.Repositories
 			return !inUse;
 		}
 
-		public async Task<IEnumerable<User>> GetAllUsersAsync() {
-			var list = await _context.Users.ToListAsync();
-			return list;
+		public async Task<List<User>> GetAllUsersAsync() {
+			return await _context.Users.ToListAsync();
 		}
 
 		public async Task<User> RegisterStudentAsync(RegisterStudentRequest data) {
@@ -40,18 +39,16 @@ namespace LmsPlatform.Repositories
 			return user;
 		}
 
-		public async Task<List<Course>?> GetUserEnrolledCoursesAsync(string? username)
+		public async Task<List<Course>?> GetUserEnrolledCoursesAsync(string username)
 		{
-			var user = (await _context.Users
-                .Include(u => u.MyCourses)
-                .FirstOrDefaultAsync(u => u.Username == username));
-			if (user == null)
-				return null;
-			
-			return user.MyCourses;
+			var user = await _context.Users
+				.Include(u => u.Courses)
+				.FirstOrDefaultAsync(u => u.Username == username);
+
+			return user?.Courses;
 		}
 
-		public async Task<User?> GetUser(string? username)
+		public async Task<User?> GetUserAsync(string username)
 		{
 			return await _context.Users.FindAsync(username);
 		}

@@ -3,12 +3,11 @@
 ## Back-end
 
 Main language: C#/ASP.Net Core.
-Data storage: To begin we'll be using Entity Framework Core for data persistence, using an In-Memory database.
-On deploy it must be configurable to use another database server.
+Data storage: Entity Framework Core, using a SQL Server database.
 
 ## Front-end
 
-Angular 12
+Angular 12, RxJS and Bootstrap.
 
 ## Objectives
 
@@ -56,6 +55,7 @@ Certificate of conclusion: Students receive a certificate on course conclusion. 
 	- Can add a comment or question to a lesson.
 
 A single user can have multiple roles:
+
 - Student
 - Student and Teacher
 - Student, Teacher and Administrator.
@@ -63,10 +63,12 @@ A single user can have multiple roles:
 ## Routes
 
 ### Public
+
 - /login
 - /registration - registration via username and password
 
 ### Authenticated Administrators, Teachers and Students
+
 - /profile - user profile
 - /my-courses - user's enrolled courses
 - /courses - lists all available courses
@@ -80,14 +82,17 @@ A single user can have multiple roles:
 - /teacher/{id} - teacher's public info, other courses offered by them, etc
 
 ### Authenticated Teachers
+
 - /teacher/create-course
 - /teacher/edit-course/{id}
 
 ### Authenticated Administrators
+
 - /admin - administration page
 - /admin/teacher
 
 ## Lesson structure
+
 - Text only, possibly with Markdown support.
 - Video, with accompanying text
 - Quiz

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LmsPlatform.Models
 {
@@ -7,10 +8,15 @@ namespace LmsPlatform.Models
 		[Key]
 		public long Id { get; set; }
 
-		public string? Username { get; set; }
+        [ForeignKey("User")]
+        public string Username { get; set; } = "";
+        public User? User { get; set; }
 
-		public long CourseId { get; set; }
+        public long CourseId { get; set; }
+        public Course? Course { get; set; }
 
-		public long LessonId { get; set; }
+        public long LessonId { get; set; }
+        public Lesson? Lesson { get; set; }
 	}
+
 }

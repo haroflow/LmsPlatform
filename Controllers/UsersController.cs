@@ -1,11 +1,7 @@
-﻿using System.Data.Common;
-using System.Net;
-using LmsPlatform.Data;
-using LmsPlatform.Dtos;
-using LmsPlatform.Models;
+﻿using LmsPlatform.Dtos;
 using LmsPlatform.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace LmsPlatform.Controllers
 {
@@ -13,17 +9,16 @@ namespace LmsPlatform.Controllers
     [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
-		private readonly DataContext _context;
 		private readonly UserRepository _userRepository;
 
-		public UsersController(DataContext context, UserRepository userRepository)
+		public UsersController(UserRepository userRepository)
         {
-            _context = context;
             _userRepository = userRepository;
         }
 
         [HttpGet]
         [Route("")]
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Index()
         {
             var list = await _userRepository.GetAllUsersAsync();

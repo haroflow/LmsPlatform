@@ -8,6 +8,8 @@
 ### Seed database
 GET {{url}}/api/db/seed
 
+### Get database script
+GET {{url}}/api/db/script
 
 
 ### Login as student

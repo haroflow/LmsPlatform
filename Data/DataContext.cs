@@ -10,10 +10,16 @@ namespace LmsPlatform.Data
             //
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            //
+        }
+
         public DbSet<User> Users => Set<User>();
         public DbSet<Course> Courses => Set<Course>();
         public DbSet<Module> Modules => Set<Module>();
         public DbSet<Lesson> Lessons => Set<Lesson>();
-		public DbSet<LessonCompleted> LessonsCompleted => Set<LessonCompleted>();
+		public DbSet<LessonCompleted> LessonCompleted => Set<LessonCompleted>();
+        
 	}
 }

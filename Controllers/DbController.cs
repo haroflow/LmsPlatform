@@ -1,7 +1,7 @@
 ﻿using LmsPlatform.Data;
-using LmsPlatform.Dtos;
 using LmsPlatform.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SlugGenerator;
 
 namespace LmsPlatform.Controllers
@@ -15,17 +15,6 @@ namespace LmsPlatform.Controllers
         public DbController(DataContext context)
         {
             _context = context;
-            Console.WriteLine("seed");
-            this.Seed();
-        }
-
-        [HttpGet]
-        [Route("teste")]
-        public IActionResult Teste() {
-            var c = new GetMyLessonDto();
-            c.Slug = "slug";
-            c.Title = "title";
-            return Ok(c);
         }
 
         [HttpGet]
@@ -33,6 +22,9 @@ namespace LmsPlatform.Controllers
         public IActionResult Seed()
         {
             _context.Users.RemoveRange(_context.Users.ToList());
+            _context.LessonCompleted.RemoveRange(_context.LessonCompleted.ToList());
+            _context.Lessons.RemoveRange(_context.Lessons.ToList());
+            _context.Modules.RemoveRange(_context.Modules.ToList());
             _context.Courses.RemoveRange(_context.Courses.ToList());
 
             var defaultPassHash = BCrypt.Net.BCrypt.HashPassword("123");
@@ -127,6 +119,13 @@ namespace LmsPlatform.Controllers
             _context.SaveChanges();
 
             return Ok("ok");
+        }
+
+        [HttpGet]
+        [Route("script")]
+        public IActionResult GetDatabaseScript()
+        {
+            return Ok(_context.Database.GenerateCreateScript());
         }
     }
 }

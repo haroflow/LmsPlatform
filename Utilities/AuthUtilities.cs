@@ -5,8 +5,12 @@ namespace LmsPlatform.Utilities
 {
 	public class AuthUtilities
 	{
-		public string? GetLoggedUsername(ControllerBase controller) {
-			return controller.User.Claims.FirstOrDefault(t => t.Type == ClaimTypes.NameIdentifier)?.Value;
+		public string GetLoggedUsername(ControllerBase controller) {
+			return controller
+				.User
+				.Claims
+				.FirstOrDefault(t => t.Type == ClaimTypes.NameIdentifier)!
+				.Value;
 		}
 	}
 }

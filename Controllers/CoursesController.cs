@@ -1,12 +1,8 @@
-﻿using System.Security.Claims;
-using LmsPlatform.Data;
-using LmsPlatform.Dtos;
-using LmsPlatform.Models;
+﻿using LmsPlatform.Dtos;
 using LmsPlatform.Repositories;
 using LmsPlatform.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace LmsPlatform.Controllers
 {
@@ -14,13 +10,11 @@ namespace LmsPlatform.Controllers
     [Route("api/[controller]")]
     public class CoursesController : ControllerBase
     {
-		private readonly DataContext _context;
 		private readonly CourseRepository _courseRepository;
 		private readonly UserRepository _userRepository;
 
-		public CoursesController(DataContext context, CourseRepository courseRepository, UserRepository userRepository)
+		public CoursesController(CourseRepository courseRepository, UserRepository userRepository)
         {
-            _context = context;
             _courseRepository = courseRepository;
             _userRepository = userRepository;
         }
@@ -57,39 +51,33 @@ namespace LmsPlatform.Controllers
 
             var enrolledCourses = await _userRepository.GetUserEnrolledCoursesAsync(username);
             if (enrolledCourses == null)
-                return NotFound("User not found");
+                return NotFound("User enrolled courses not found");
 
             var course = await _courseRepository.GetCourseBySlugAsync(slug);
             if (course == null)
                 return NotFound("Course not found");
 
-            var ret = new GetCourseDto {
+            var result = new GetCourseDto {
                 Name = course.Name,
                 Slug = course.Slug,
                 Description = course.Description,
                 BannerImage = course.BannerImage,
-                Modules = new List<GetModuleDto>(),
+                Modules = course.Modules.OrderBy(m => m.Id).Select(m =>
+                    new GetModuleDto()
+                    {
+                        Title = m.Title,
+                        Slug = m.Slug,
+                        Lessons = m.Lessons.OrderBy(l => l.Id).Select(l =>
+                            new GetLessonDto()
+                            {
+                                Title = l.Title,
+                                Slug = l.Slug,
+                            }).ToList()
+                    }).ToList(),
                 UserEnrolled = enrolledCourses.Any(c => c.Id == course.Id)
             };
 
-            foreach (Module module in course.Modules.OrderBy(m => m.Id)) {
-                var m = new GetModuleDto {
-                    Title = module.Title,
-                    Slug = module.Slug,
-                    Lessons = new List<GetLessonDto>(),
-                };
-
-                foreach (Lesson lesson in module.Lessons.OrderBy(l => l.Id)) {
-                    m.Lessons.Add(new GetLessonDto {
-                        Title = lesson.Title,
-                        Slug = lesson.Slug,
-                    });
-                }
-
-                ret.Modules.Add(m);
-            }
-
-            return Ok(ret);
+            return Ok(result);
         }
 
         [HttpGet]
@@ -135,7 +123,8 @@ namespace LmsPlatform.Controllers
             [FromRoute] string moduleSlug,
             [FromRoute] string lessonSlug)
         {
-            var lesson = await _courseRepository.GetLessonAsync(courseSlug, moduleSlug, lessonSlug);
+            var lesson = await _courseRepository
+                .GetLessonAsync(courseSlug, moduleSlug, lessonSlug);
             if (lesson == null)
                 return NotFound("Lesson not found");
 
@@ -148,10 +137,6 @@ namespace LmsPlatform.Controllers
         public async Task<IActionResult> GetMyCourseBySlug([FromRoute] string courseSlug)
         {
             var username = new AuthUtilities().GetLoggedUsername(this);
-
-            var user = await _userRepository.GetUser(username);
-            if (user == null)
-                return NotFound("User not found");
 
             var course = await _courseRepository.GetCourseBySlugAsync(courseSlug);
             if (course == null)
@@ -166,26 +151,21 @@ namespace LmsPlatform.Controllers
                 Slug = course.Slug,
                 Description = course.Description,
                 BannerImage = course.BannerImage,
-                Modules = new List<GetMyModuleDto>(),
+                Modules = course.Modules.OrderBy(m => m.Id).Select(m =>
+                    new GetMyModuleDto
+                    {
+                        Title = m.Title,
+                        Slug = m.Slug,
+                        Lessons = m.Lessons.OrderBy(l => l.Id).Select(l =>
+                            new GetMyLessonDto
+                            {
+                                Title = l.Title,
+                                Slug = l.Slug,
+                                Completed = progress.Any(t => t.LessonId == l.Id)
+                            }
+                        ).ToList()
+                    }).ToList()
             };
-
-            foreach (Module module in course.Modules.OrderBy(m => m.Id)) {
-                var m = new GetMyModuleDto {
-                    Title = module.Title,
-                    Slug = module.Slug,
-                    Lessons = new List<GetMyLessonDto>(),
-                };
-
-                foreach (Lesson lesson in module.Lessons.OrderBy(l => l.Id)) {
-                    m.Lessons.Add(new GetMyLessonDto {
-                        Title = lesson.Title,
-                        Slug = lesson.Slug,
-                        Completed = progress.Any(t => t.LessonId == lesson.Id)
-                    });
-                }
-
-                result.Modules.Add(m);
-            }
 
             return Ok(result);
         }
@@ -196,42 +176,22 @@ namespace LmsPlatform.Controllers
         public async Task<IActionResult> LessonCompleteAsync([FromRoute] long lessonId)
         {
             var username = new AuthUtilities().GetLoggedUsername(this);
-
-            var user = await _userRepository.GetUser(username);
-            if (user == null)
-                return NotFound("User not found");
-
+            
             var lesson = await _courseRepository.GetLessonByIdAsync(lessonId);
             if (lesson == null || lesson.Module == null || lesson.Module.Course == null)
                 return NotFound("Lesson not found");
 
-            var userEnrolled = await _courseRepository.IsUserEnrolledInCourseAsync(username, lesson.Module.Course.Id);
+            var userEnrolled = await _courseRepository
+                .IsUserEnrolledInCourseAsync(username, lesson.Module.Course.Id);
             if (!userEnrolled)
                 return BadRequest("User not enrolled in this course");
 
-            var saved = await _courseRepository.SetLessonAsCompletedAsync(
+            await _courseRepository.SetLessonAsCompletedAsync(
                 username,
-                lesson.Module!.Course!.Id,
+                lesson.Module.Course.Id,
                 lesson.Id);
 
             return Ok();
-        }
-
-        [HttpGet]
-        [Route("completed")]
-        [Authorize]
-        public IActionResult GetLessonComplete()
-        {
-            // TODO is this in use?
-            var username = new AuthUtilities().GetLoggedUsername(this);
-
-            var user = _userRepository.GetUser(username);
-            if (user == null)
-                return NotFound("User not found");
-
-            var l = _context.LessonsCompleted.ToList();
-
-            return Ok(l);
         }
 	}
 }

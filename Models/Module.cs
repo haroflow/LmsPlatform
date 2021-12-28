@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace LmsPlatform.Models
 {
@@ -8,15 +6,11 @@ namespace LmsPlatform.Models
     {
         [Key]
         public long Id {  get; set; }
-
-        [Required]
         public string Title { get; set; } = "";
-        
-        [Required]
 		public string Slug { get; set; } = "";
+        public long CourseId { get; set; }
+        public Course? Course { get; set; }
 
         public List<Lesson> Lessons { get; set; } = new List<Lesson>();
-
-        public Course? Course { get; set; }
 	}
 }
