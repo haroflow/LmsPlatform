@@ -2,6 +2,8 @@
 using LmsPlatform.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 
 namespace LmsPlatform.Controllers
 {
@@ -46,11 +48,18 @@ namespace LmsPlatform.Controllers
                 var user = await _userRepository.RegisterStudentAsync(data);
                 return Ok();
             }
-            catch (Exception)
+            catch (DbUpdateException ex)
             {
-                // TODO return custom message if username already exists.
-                // Check if the exception using SQL Server returns any indication of a duplicate key error.
-                return Problem("Could not register user");
+                var sqlEx = ex.InnerException as SqlException;
+                if (sqlEx != null && sqlEx.Number == 2627)
+                    return Problem("User name already registered.");
+
+                return Problem("Could not register user.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return Problem("Could not register user.");
             }
         }
 
