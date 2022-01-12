@@ -1,42 +1,47 @@
-﻿using LmsPlatform.Data;
-using LmsPlatform.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using LmsPlatform.Models;
 using Microsoft.EntityFrameworkCore;
 using SlugGenerator;
 
-namespace LmsPlatform.Controllers
+namespace LmsPlatform.Data
 {
-    [ApiController]
-    [Route("api/db")]
-    public class DbController : Controller
+    public class AppDbContext : DbContext
     {
-        private readonly DataContext _context;
-
-        public DbController(DataContext context)
+        public AppDbContext(DbContextOptions options) : base(options)
         {
-            _context = context;
+            //
         }
 
-        [HttpGet]
-        [Route("seed")]
-        public IActionResult Seed()
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            _context.Users.RemoveRange(_context.Users.ToList());
-            _context.LessonCompleted.RemoveRange(_context.LessonCompleted.ToList());
-            _context.Lessons.RemoveRange(_context.Lessons.ToList());
-            _context.Modules.RemoveRange(_context.Modules.ToList());
-            _context.Courses.RemoveRange(_context.Courses.ToList());
+            //
+        }
+
+        public DbSet<User> Users => Set<User>();
+        public DbSet<Course> Courses => Set<Course>();
+        public DbSet<Module> Modules => Set<Module>();
+        public DbSet<Lesson> Lessons => Set<Lesson>();
+		public DbSet<LessonCompleted> LessonCompleted => Set<LessonCompleted>();
+
+        internal void Seed()
+        {
+            Console.WriteLine("seeding database...");
+
+            Users.RemoveRange(Users.ToList());
+            LessonCompleted.RemoveRange(LessonCompleted.ToList());
+            Lessons.RemoveRange(Lessons.ToList());
+            Modules.RemoveRange(Modules.ToList());
+            Courses.RemoveRange(Courses.ToList());
 
             var defaultPassHash = BCrypt.Net.BCrypt.HashPassword("123");
 
-            _context.Users.Add(new User()
+            Users.Add(new User()
             { Name = "Administrator Smith", Role = UserRole.Administrator, Username = "administrator", PasswordHash = defaultPassHash });
-            _context.Users.Add(new User()
+            Users.Add(new User()
             { Name = "Teacher Mary", Role = UserRole.Teacher, Username = "teacher", PasswordHash = defaultPassHash });
-            _context.Users.Add(new User()
+            Users.Add(new User()
             { Name = "Student John", Role = UserRole.Student, Username = "student", PasswordHash = defaultPassHash });
 
-            _context.Courses.Add(new Course()
+            Courses.Add(new Course()
             {
                 Name = "Angular 15",
                 Description = "In this course you'll learn how to use Angular 15 to create amazing web applications",
@@ -79,7 +84,7 @@ namespace LmsPlatform.Controllers
                 }
             });
 
-            _context.Courses.Add(new Course()
+            Courses.Add(new Course()
             {
                 Name = "C# 20",
                 Description = "In this course you'll learn how to use C# 20 to create amazing applications",
@@ -116,16 +121,7 @@ namespace LmsPlatform.Controllers
                 }
             });
 
-            _context.SaveChanges();
-
-            return Ok("ok");
-        }
-
-        [HttpGet]
-        [Route("script")]
-        public IActionResult GetDatabaseScript()
-        {
-            return Ok(_context.Database.GenerateCreateScript());
+            SaveChanges();
         }
     }
 }

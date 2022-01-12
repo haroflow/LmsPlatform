@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddDbContext<DataContext>(options => 
+builder.Services.AddDbContext<AppDbContext>(options => 
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddTransient<UserRepository>();
@@ -46,6 +46,11 @@ if (!app.Environment.IsDevelopment())
 {
     // Allow any origin for development
     app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+
+    // Get AppDbContext from DI and seed database with development data.
+    //var scope = app.Services.CreateScope();
+    //var context = scope.ServiceProvider.GetService<AppDbContext>();
+    //context!.Seed();
 }
 
 app.UseHttpsRedirection();

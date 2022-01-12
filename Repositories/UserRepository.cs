@@ -7,9 +7,9 @@ namespace LmsPlatform.Repositories
 {
 	public class UserRepository
 	{
-		private readonly DataContext _context;
+		private readonly AppDbContext _context;
 
-		public UserRepository(DataContext context)
+		public UserRepository(AppDbContext context)
 		{
 			_context = context;
 		}
